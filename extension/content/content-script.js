@@ -216,7 +216,8 @@
         if (r.pageLevel && r.pageLevel.length) ui.showPageBanner(r.pageLevel);
         injected = true;
         postFindings(r.serialized);
-        setTimeout(() => ui.setFirstScanDone(), 1000);
+        const scanUI = ui;
+        setTimeout(() => scanUI.setFirstScanDone(), 1000);
       } else if (r.stage === 'visual') {
         lastStats.visualAtMs = performance.now() - lastStats.startedAt;
         setGroups(r.groups);
@@ -279,6 +280,10 @@
       scanGeneration += 1;
       disconnectLazy();
       if (ui) ui.remove();
+      // remove() tears down the overlay's stylesheet, so the next scan must
+      // build a fresh UI instead of drawing unstyled outlines with this one.
+      ui = null;
+      uiPromise = null;
       groupMap.clear();
       injected = false;
       sendResponse({ ok: true });
