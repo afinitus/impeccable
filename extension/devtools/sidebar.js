@@ -23,7 +23,12 @@ function getPort() {
       refreshForCurrentSelection();
     }
   });
-  port.onDisconnect.addListener(() => { port = null; });
+  port.onDisconnect.addListener(() => {
+    port = null;
+    // Nothing else calls getPort(): reconnect so findings keep arriving after
+    // the service worker restarts (same approach as devtools.js).
+    setTimeout(getPort, 100);
+  });
   return port;
 }
 getPort();
